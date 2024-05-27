@@ -1,0 +1,25 @@
+Process:
+---------
+
+A process is an instance of a program in execution. It’s a heavyweight operation because it has its own memory space, 
+including the text section, data section, and other operating system resources1.
+
+Processes are independent of each other and communicate through Inter-Process Communication (IPC) mechanisms1.
+
+Context switching between processes is more time-consuming due to the associated overhead of saving and loading more state information1.
+
+
+Thread:
+--------
+
+A thread is a segment of a process, meaning a process can have multiple threads, and these threads can execute concurrently1.
+
+Threads within the same process share the same memory space, which makes communication between them more efficient but also means that a fault in one thread can affect the entire process1.
+
+Context switching between threads is faster as they share the same memory and require less state information to be saved and loaded1.
+
+
+Conclusion:
+------------
+In summary, processes are suitable for tasks that need to be isolated from each other, 
+while threads are better for tasks that require shared memory for communication and quick context switches.

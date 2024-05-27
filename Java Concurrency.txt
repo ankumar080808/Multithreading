@@ -1,0 +1,17 @@
+Concurrency in Java refers to the ability of a program to execute multiple threads or processes simultaneously to perform complex tasks more efficiently. It allows a Java application to perform many tasks in parallel, which can lead to better performance, especially on multi-core or multi-processor systems.
+
+Here’s a breakdown of key concepts related to concurrency in Java:
+
+Thread: The smallest unit of execution within a process. Java threads can be created by extending the Thread class or implementing the Runnable interface.
+Process: An executing instance of a program. Each process has its own memory space, and inter-process communication is more complex than inter-thread communication.
+Synchronization: A mechanism that ensures that only one thread can access the resource at a time, preventing race conditions.
+Locks: Tools to help synchronize access to resources. Java provides intrinsic locks (using the synchronized keyword) and explicit locks (like ReentrantLock).
+Thread Pool: A group of pre-instantiated reusable threads that can be used to manage and execute tasks concurrently.
+Atomic Operations: Operations that are performed in a single step from the perspective of other threads. Java provides atomic classes in the java.util.concurrent.atomic package.
+Deadlock: A situation where two or more threads are blocked forever, waiting for each other to release a resource.
+Livelock: A situation where threads are not blocked, but they are unable to make further progress because they keep responding to each other’s actions.
+Starvation: A situation where a thread is unable to gain regular access to shared resources and is unable to make progress because the other threads are monopolizing the resources.
+Race Condition: A situation where the outcome of a process depends on the sequence or timing of other uncontrollable events.
+Java provides a rich set of APIs and tools in the java.util.concurrent package to help manage concurrency. This includes various synchronization mechanisms, thread-safe collections, executor frameworks, and other utilities that facilitate writing concurrent programs.
+
+Effective use of concurrency can lead to applications that are scalable, responsive, and fast. However, it also introduces complexity and potential issues such as deadlocks, race conditions, and thread contention, which require careful design and testing to avoid.

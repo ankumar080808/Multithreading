@@ -1,0 +1,25 @@
+In Java, the Thread class provides several methods to manage and control the behavior of threads. Here’s an overview of some of the key methods:
+
+start(): This method starts a new thread by calling the run() method of the thread. Once start() has been called, the JVM calls the thread’s run() method when the thread is initially executed.
+
+run(): The run() method is used to perform the action for a thread. You’ll override this method with the code you want the thread to execute.
+
+sleep(long millis): This static method causes the currently executing thread to sleep (temporarily cease execution) for the specified number of milliseconds.
+
+join(): This method allows one thread to wait for the completion of another. If t is a Thread object whose thread is currently executing, then t.join() causes the current thread to pause execution until t’s thread terminates.
+
+interrupt(): This method is used to interrupt a thread. If a thread is in a blocked state (like waiting, sleeping, or otherwise occupied), it will throw an InterruptedException.
+
+yield(): This static method causes the currently executing thread to pause and allow other threads of the same priority to execute. It’s a way of suggesting that the current thread is willing to yield its current use of a processor.
+
+wait(): This method causes the current thread to wait until another thread calls notify() or notifyAll() on the same object. It’s used in synchronized blocks to release the lock and make the thread wait until it’s notified.
+
+notify() and notifyAll(): These methods are used to wake up threads that are waiting on an object’s monitor (which have called wait() on the object). notify() wakes up a single thread, while notifyAll() wakes up all the threads that are waiting on the object’s monitor.
+
+setPriority(int newPriority): This method changes the priority of the thread. Priorities are represented by a number between Thread.MIN_PRIORITY (1) and Thread.MAX_PRIORITY (10).
+
+isAlive(): This method tests if the thread is alive. A thread is alive if it has been started and has not yet died.
+
+setName(String name) and getName(): These methods are used to set and get the name of the thread, respectively.
+
+setDaemon(boolean on) and isDaemon(): These methods are used to mark a thread as a daemon thread or to check if a thread is a daemon thread. Daemon threads are service providers for other threads running in the same process and are terminated automatically when all user threads are finished.

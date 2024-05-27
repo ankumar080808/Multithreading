@@ -1,0 +1,77 @@
+In Java, there are multiple ways to create a thread, each with its own advantages and use cases. Here are the primary methods:
+
+Extending the Thread Class:
+
+You can create a new class that extends the java.lang.Thread class and overrides the run() method.
+Then, you can create an instance of this class and call the start() method to execute the thread.
+
+class MyThread extends Thread {
+    public void run() {
+        // Code that runs in the new thread
+    }
+}
+
+public class Example {
+    public static void main(String[] args) {
+        MyThread t = new MyThread();
+        t.start(); // Starts the thread
+    }
+}
+
+Implementing the Runnable Interface:
+
+Another way is to implement the java.lang.Runnable interface and override the run() method. You then pass an instance of the class to a Thread object and call start()
+
+class MyRunnable implements Runnable {
+    public void run() {
+        // Code that runs in the new thread
+    }
+}
+
+public class Example {
+    public static void main(String[] args) {
+        Thread t = new Thread(new MyRunnable());
+        t.start(); // Starts the thread
+    }
+}
+
+Implementing the Callable Interface:
+
+Similar to Runnable, but it allows the thread to return a value and throw exceptions.
+You use it with an ExecutorService to start the thread and Future to get the result
+
+class MyCallable implements Callable<Integer> {
+    public Integer call() throws Exception {
+        // Code that runs in the new thread
+        return 42; // Return some result
+    }
+}
+
+public class Example {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Integer> future = executor.submit(new MyCallable());
+        Integer result = future.get(); // Retrieves the result
+        executor.shutdown();
+    }
+}
+
+
+Using the Executor Framework:
+
+The Executor framework abstracts the thread creation and management process. You submit Runnable or Callable tasks to an ExecutorService, and it handles the execution.
+
+public class Example {
+    public static void main(String[] args) {
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        executor.execute(new MyRunnable()); // For Runnable tasks
+        Future<Integer> future = executor.submit(new MyCallable()); // For Callable tasks
+        // Perform additional tasks...
+        executor.shutdown(); // Initiates an orderly shutdown
+    }
+}
+
+Each method serves different needs. Extending Thread is straightforward but limits inheritance.
+Implementing Runnable or Callable provides more flexibility and is generally the preferred approach for complex applications.
+TheExecutor framework simplifies thread management and is highly recommended for managing a large number of threads.
+

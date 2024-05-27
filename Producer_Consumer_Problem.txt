@@ -1,0 +1,153 @@
+The Producer-Consumer problem is a classic example of a multi-process synchronization problem.
+The problem describes two processes, the producer and the consumer, who share a common, fixed-size buffer used as a queue.
+
+Producer: The role of the producer is to generate data, put it into the buffer, and start again.
+At any point, if the buffer is full, the producer needs to wait for the consumer to consume some data before it can add more data to the buffer.
+
+Consumer: Conversely, the consumer takes (or consumes) the data one piece at a time. 
+If the buffer is empty, the consumer needs to wait for the producer to fill the buffer with data, then consume it.
+
+Edge Cases and Constraints:
+
+Buffer Overrun/Underrun: The producer should not add data to the buffer if it’s full (overrun), and the consumer should not try to consume data if the buffer is empty (underrun).
+
+Race Conditions: When multiple producers and consumers are running concurrently, there’s a risk of race conditions, where they might try to add or remove data in the buffer at the same time. This can lead to inconsistent or corrupted data.
+
+Deadlock: This can occur if both the producer and consumer are waiting for each other to release the lock on the buffer, and neither is able to proceed.
+
+Starvation: A thread may suffer from starvation if it’s never able to acquire the lock because other threads are constantly holding the lock and it never gets its turn.
+
+Throughput: The rate at which producers produce and consumers consume should be balanced. If producers are faster, the buffer will remain full, causing them to wait. If consumers are faster, the buffer will remain empty, causing them to wait
+
+Wait and NotifyALL() implementation
+--------------------------------------
+
+package Concurrency.ProducerConsumer;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class ProducerConsumerDemo {
+    public static void main(String[] args) {
+        Queue<Integer> buffer = new LinkedList<>();
+        int maxSize = 5;
+
+        Thread producerThread = new Thread(() -> {
+            for(int i = 0; i< 10; i++){
+                synchronized (buffer){
+                    //overflow check
+                    while(buffer.size() == maxSize){
+                        try {
+                            System.out.println("buffer is full, so waiting");
+                            buffer.wait();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    buffer.add(i);
+                    System.out.println("Produced "+i);
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    buffer.notifyAll();
+                }
+            }
+        }, "Producer");
+
+        Thread consumerThread = new Thread(() -> {
+            for(int i = 0; i< 10; i++){
+                synchronized (buffer){
+                    //underflow check
+                    while(buffer.isEmpty()){
+                        try {
+                            System.out.println("buffer is empty, so waiting");
+                            buffer.wait();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    int val = buffer.remove();
+                    System.out.println("Consumed "+val);
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    buffer.notifyAll();
+                }
+            }
+        }, "Consumer");
+
+        producerThread.start();
+        consumerThread.start();
+
+
+
+    }
+}
+
+Blocking Queue Implementation
+----------------------------------
+package Concurrency.ProducerConsumer;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
+public class ProducerConsumerExample {
+    public static void main(String[] args) {
+        BlockingQueue<Integer> buffer = new ArrayBlockingQueue<>(5);
+
+        Thread producerThread = new Thread(() -> {
+            for (int i = 0; i < 10; i++) {
+                try {
+                    buffer.put(i); // This will block if the buffer is full.
+                    System.out.println("Produced " + i);
+                    Thread.sleep((long) (Math.random() * 5000));
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, "Producer");
+
+        Thread consumerThread = new Thread(() -> {
+            for (int i = 0; i < 10; i++) {
+                try {
+
+                    int value = buffer.take(); // This will block if the buffer is empty.
+                    System.out.println("Consumed " + value);
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, "Consumer");
+
+        producerThread.start();
+        consumerThread.start();
+    }
+}
+
+
+The put and take methods are part of the BlockingQueue interface in Java, which provides a thread-safe way to handle producer-consumer scenarios. Here’s how they work:
+
+put(E e): This method is used by producers to add an element to the queue.
+
+If the queue is full (i.e., it has reached its capacity), the put method will cause the thread to block and enter a waiting state.
+
+The thread remains blocked until space becomes available in the queue, at which point the element is inserted, and the thread is unblocked.
+
+This blocking behavior is handled internally by the BlockingQueue, ensuring that no additional synchronization is needed.
+
+take(): This method is used by consumers to retrieve and remove the head of the queue.
+
+If the queue is empty, the take method will cause the thread to block and enter a waiting state.
+
+The thread remains blocked until an element becomes available to take from the queue, at which point the element is removed, and the thread is unblocked.
+
+Similar to put, the take method handles its blocking behavior internally, providing a thread-safe way to consume elements from the queue.
+
+Both methods use internal locks and condition variables to manage the blocking behavior. When a thread is blocked by put or take, it’s essentially waiting for a condition to be met (space available or elements present, respectively). When another thread makes space in the queue (by taking an element) or adds an element to the queue (by putting one), it signals the waiting threads that the condition they’re waiting for might now be true. The waiting threads then attempt to acquire the lock and proceed with their operation.
+
+This mechanism ensures that the producer does not overflow the queue with too many elements and that the consumer does not underflow the queue by trying to take elements that aren’t there. It’s a fundamental part of concurrent programming in Java, allowing for smooth and efficient data exchange between threads without the risk of thread interference or memory consistency errors. 

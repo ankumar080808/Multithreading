@@ -1,0 +1,22 @@
+Multitasking and multithreading are both concepts related to concurrent execution in computer systems, but they operate at different levels and have different implementations.
+
+Multitasking:
+
+Multitasking refers to the ability of an operating system to execute multiple tasks concurrently.
+
+In multitasking, the CPU switches between different tasks rapidly, giving the illusion that multiple tasks are being executed simultaneously.
+
+Tasks can be independent processes or threads running different programs.
+
+Examples of multitasking include running a web browser while listening to music, or editing a document while downloading a file.
+
+Multithreading:
+
+Multithreading is a specific form of multitasking where multiple threads within a process execute concurrently.
+
+Threads within the same process share the same memory space and resources, allowing them to communicate and coordinate more efficiently.
+
+Multithreading is often used to improve the responsiveness of applications by allowing tasks to run in the background without blocking the main thread.
+
+Examples of multithreading include a web browser rendering a webpage while simultaneously loading images in the background, or a video player decoding video frames while also handling user input.
+In summary, multitasking refers to the ability of an operating system to execute multiple tasks concurrently, while multithreading is a technique used within a single process to achieve concurrent execution through the use of multiple threads

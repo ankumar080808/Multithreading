@@ -1,0 +1,24 @@
+Semaphores:
+----------------
+
+Semaphores are variables used to control access to a common resource by multiple processes in a multitasking environment.
+They are a more general synchronization mechanism because they can allow more than one thread to access a resource at a time, up to a maximum number set by the semaphore.
+Semaphores can be counting, meaning they keep track of the number of available permits, or binary, which is essentially a mutex.
+They provide two operations: wait (also known as P operation) and signal (also known as V operation). The wait operation decrements the semaphore’s value, and if it’s positive, 
+the thread can proceed; if it’s zero or negative, the thread is blocked. The signal operation increments the semaphore’s value and potentially wakes up a blocked thread
+
+
+Synchronization:
+-----------------
+
+Synchronization in Java typically refers to the use of synchronized blocks or methods.
+It allows only one thread to access a critical section at a time, ensuring mutual exclusion.
+The synchronized keyword can be applied to methods or blocks of code and is built into the Java language.
+When a thread enters a synchronized block, it acquires an intrinsic lock or monitor lock associated with the object or class referenced in the synchronized statement.
+Other threads attempting to enter the locked block are blocked until the first thread exits and releases the lock.
+
+Conclusion
+-----------------
+Semaphores offer more flexibility and can be used for both mutual exclusion and signaling, 
+allowing a specific number of threads to access a resource. In contrast, synchronization with the synchronized keyword is strictly about mutual exclusion, 
+allowing only one thread at a time to access a critical section

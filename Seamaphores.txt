@@ -1,0 +1,89 @@
+Certainly! In Java, a semaphore is a synchronization aid that controls access to shared resources by multiple threads. 
+It operates on a simple counter; if the counter is greater than zero, access to the resource is allowed. 
+If it is zero, access is denied. The counter represents the number of permits available for the resource.
+
+Permits: These are the units that semaphores use to grant access to the shared resources. A thread must acquire a permit to access the resource and release it when done.
+
+Acquire(): This method is used by a thread to request a permit. If a permit is available (counter > 0), the semaphore decrements the counter and grants access.
+If no permits are available, the thread is blocked until one becomes available.
+
+Release(): When a thread no longer needs access to the shared resource, it calls this method to release the permit, incrementing the semaphore’s counter.
+
+Constructors: The Semaphore class in Java provides two constructors:
+Semaphore(int permits): Initializes the semaphore with the given number of permits.
+Semaphore(int permits, boolean fair): The fair parameter, if set to true, ensures that permits are granted in the order they were requested.
+
+Fairness: A semaphore can be fair or non-fair. A fair semaphore grants permits in the order in which threads requested them, 
+while a non-fair semaphore does not guarantee any particular order.
+
+Blocking and Non-blocking: Acquiring a permit can be blocking (the thread waits) or non-blocking (the thread can check if a permit is available without waiting).
+
+Bounded Semaphores: These have an upper limit on the number of permits that can be issued, which is useful for resource pools.
+
+Binary Semaphores: A special case of bounded semaphore where the number of permits is one, making it similar to a mutex or lock.
+
+Types of Seamaphores
+------------------------
+
+Counting Semaphores: Counting semaphores allow multiple threads to access a finite number of resources. The semaphore is initialized with the number of permits, 
+which represents the number of available resources.
+
+// Initialize semaphore with 5 permits
+Semaphore countingSemaphore = new Semaphore(5);
+
+// Acquire a permit if available
+countingSemaphore.acquire();
+
+// Release the permit
+countingSemaphore.release();
+
+Bounded Semaphores: Bounded semaphores are similar to counting semaphores but have an upper limit on the number of permits that can be released. 
+This prevents the semaphore’s count from exceeding its initial value.
+
+Binary Semaphores: Binary semaphores are a special case of bounded semaphores with only one permit. They are used to implement mutual exclusion (mutex).
+
+Timed Semaphores: Timed semaphores allow threads to attempt to acquire a permit within a specified amount of time.
+
+
+Example Code
+--------------
+import java.util.concurrent.Semaphore;
+
+public class SemaphoreExample {
+    static int count = 0;
+    static Semaphore sem = new Semaphore(1);
+
+    public static void main(String[] args) {
+        // Using lambda to create a Runnable
+        Runnable task = () -> {
+            String threadName = Thread.currentThread().getName();
+            System.out.println("Starting " + threadName);
+            try {
+                // Acquiring the permit
+                System.out.println(threadName + " is waiting for a permit.");
+                sem.acquire();
+                System.out.println(threadName + " gets a permit.");
+
+                // Accessing the shared resource
+                for (int i = 0; i < 5; i++) {
+                    count++;
+                    System.out.println(threadName + ": " + count);
+                    // simulate some work
+                    Thread.sleep(10);
+                }
+            } catch (InterruptedException exc) {
+                System.out.println(exc);
+            } finally {
+                // Releasing the permit
+                System.out.println(threadName + " releases the permit.");
+                sem.release();
+            }
+        };
+
+        // Starting threads with the task
+        new Thread(task, "Thread 1").start();
+        new Thread(task, "Thread 2").start();
+    }
+}
+
+

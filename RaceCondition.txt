@@ -1,0 +1,126 @@
+ race condition in Java occurs when two or more threads can access shared data and attempt to change it simultaneously. Because the thread scheduling algorithm can swap between threads at any time, the order in which threads access the shared data is unpredictable. As a result, the outcome of data changes depends on the thread scheduling, leading to incorrect behavior in the program. Let’s delve into the details:
+
+Read-modify-write:
+In this pattern, multiple threads firs
+
+t read a variable, then modify its value, and finally write it back to the variable. For instance, consider the following code snippet:
+public class Number {
+    protected long number = 0;
+    public void add(long value) {
+        this.number = this.number + value;
+    }
+}
+If two threads concurrently access the add method, they might read the same value, modify it, and write it back, leading to unexpected results.
+
+I’ve created a visualization to help you understand the race condition scenario in Java with two threads accessing the add method. Imagine two threads, Thread A and Thread B, both trying to add their own value to the shared number variable at the same time. Here’s how the race condition might unfold:
+
+Initial State: Both threads start with the same initial value of number, let’s say 0.
+Concurrent Access:
+Thread A reads the value of number as 0.
+Thread B also reads the value of number as 0.
+Modification:
+Thread A adds its value, say 5, to 0, resulting in 5.
+Thread B adds its value, say 3, to 0, resulting in 3.
+Write Back:
+Thread A writes back 5 to number.
+Thread B writes back 3 to number.
+Final State: The final value of number could be either 5 or 3, depending on which thread writes back last.
+This illustration shows that instead of the expected result of 8 (5+3), the number variable ends up with the value from only one of the threads due to the race condition. To prevent this, synchronization techniques like synchronized blocks or ReentrantLock can be used to ensure that only one thread can access the add method at a time, preserving the correct sequence of operations. 
+
+Check-then-act:
+In this scenario, one thread performs a check (e.g., verifying if a value is equal to a specific condition), and another thread modifies the value in between the check and the subsequent action. For example:
+
+if (x == 5) {
+    y = x * 2;
+    // If another thread changes x between the check and the multiplication,
+    // y may not be equal to 10.
+}
+Here, the value of y could be unpredictable due to the race condition12.
+To prevent race conditions, it’s crucial to use proper synchronization mechanisms, such as locks or semaphores, to ensure that only one thread accesses shared data at a time. By protecting critical sections, you can avoid unexpected behavior caused by concurrent modifications.
+
+
+Example of Race Condition
+---------------------------
+public class Counter {
+    private int number = 0;
+
+    // Method without synchronization - prone to race condition
+    public void add(int value) {
+        int temp = this.number; // Thread reads the value
+        temp += value;          // Thread modifies the value
+        this.number = temp;     // Thread writes back the value
+    }
+
+    // Synchronized method to prevent race condition
+    public synchronized void safeAdd(int value) {
+        int temp = this.number; // Thread reads the value
+        temp += value;          // Thread modifies the value
+        this.number = temp;     // Thread writes back the value
+    }
+
+    public int getNumber() {
+        return number;
+    }
+}
+
+public class RaceConditionDemo {
+    public static void main(String[] args) throws InterruptedException {
+        Counter counter = new Counter();
+
+        // Thread A tries to add 5 to the number
+        Thread threadA = new Thread(() -> {
+            for (int i = 0; i < 1000; i++) {
+                counter.add(5);
+            }
+        });
+
+        // Thread B tries to add 3 to the number
+        Thread threadB = new Thread(() -> {
+            for (int i = 0; i < 1000; i++) {
+                counter.add(3);
+            }
+        });
+
+        threadA.start();
+        threadB.start();
+
+        threadA.join();
+        threadB.join();
+
+        // The expected result would be 8000 if there were no race conditions
+        System.out.println("Unsafe operation result: " + counter.getNumber());
+
+        // Reset counter
+        counter = new Counter();
+
+        // Thread A and Thread B try to safely add 5 and 3 to the number
+        threadA = new Thread(() -> {
+            for (int i = 0; i < 1000; i++) {
+                counter.safeAdd(5);
+            }
+        });
+
+        threadB = new Thread(() -> {
+            for (int i = 0; i < 1000; i++) {
+                counter.safeAdd(3);
+            }
+        });
+
+        threadA.start();
+        threadB.start();
+
+        threadA.join();
+        threadB.join();
+
+        // The result should now be 8000, as the race condition has been prevented
+        System.out.println("Safe operation result: " + counter.getNumber());
+    }
+}
+
+In this code:
+
+The add method is not synchronized, which means it’s prone to race conditions when accessed by multiple threads simultaneously.
+The safeAdd method is synchronized, which prevents race conditions by allowing only one thread at a time to execute it.
+In the main method, we first demonstrate the race condition by running the add method in two threads, which leads to an incorrect result.
+Then, we reset the Counter and run the safeAdd method in two threads, which gives us the correct result of 8000 (1000 iterations of 5 plus 1000 iterations of 3).
+This code demonstrates how a lack of synchronization can lead to race conditions and how using the synchronized keyword can prevent them, ensuring that operations on shared data are performed atomically.

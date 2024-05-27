@@ -1,0 +1,125 @@
+The Lock interface in Java provides a more flexible and sophisticated thread synchronization mechanism compared to the traditional synchronized blocks or methods. 
+It’s part of the java.util.concurrent.locks package and offers extensive operations for locking. Here’s an overview of the Lock interface and its key features:
+
+All the below points are valid for ReEntrant lock as well...
+--------------------------------------------------------------
+Flexibility: Unlike synchronized blocks, which must be fully contained within a single method, the Lock interface allows the lock’s lock() and unlock() operations to be performed in separate methods,
+providing greater flexibility in how locks are managed across methods.
+
+
+Fairness: The Lock interface can enforce fairness, meaning it can ensure that the longest-waiting thread is given access to the lock. 
+This is in contrast to synchronized blocks, which do not support fairness and allow any thread to acquire the lock once it’s released
+
+
+Timeouts: The Lock interface provides options for timeouts with methods like tryLock(), which attempts to acquire the lock only if it’s available and not held by another thread, 
+and tryLock(long time, TimeUnit unit), which waits up to the given timeout before giving up trying to acquire the lock
+
+
+Interruptibility: A thread waiting to acquire a lock can be interrupted when using the Lock interface, 
+thanks to the lockInterruptibly() method. This is not possible with synchronized blocks, where a thread in a waiting state cannot be interrupted
+
+Here are some of the main methods provided by the Lock interface:
+
+l) lock(): Acquires the lock if it’s available. If the lock isn’t available, the thread gets blocked until the lock is released.
+
+2) lockInterruptibly(): Similar to lock(), but it allows the blocked thread to be interrupted and resume execution through a thrown InterruptedException.
+
+3) tryLock(): A non-blocking version of lock() that attempts to acquire the lock immediately, returning true if locking succeeds.
+
+4) tryLock(long timeout, TimeUnit timeUnit): Similar to tryLock(), except it waits up to the given timeout before giving up trying to acquire the lock.
+
+5) unlock(): Releases the lock. It’s crucial to always unlock a locked instance to avoid deadlock conditions
+
+6)Condition Support: Reentrant Locks can work with one or more Condition objects, which allow threads to wait for specific conditions to become true before proceeding.
+
+ReEntrant lock code
+--------------------
+
+import java.util.concurrent.locks.ReentrantLock;
+
+public class Counter {
+    private final ReentrantLock lock = new ReentrantLock();
+    private int count = 0;
+
+    // Method to increment count
+    public void increment() {
+        lock.lock();  // Acquire the lock
+        try {
+            count++;
+        } finally {
+            lock.unlock();  // Ensure the lock is released even if an exception is thrown
+        }
+    }
+
+    // Method to get the current count
+    public int getCount() {
+        return count;
+    }
+
+    // Main method to run increment actions in separate threads
+    public static void main(String[] args) {
+        Counter counter = new Counter();
+
+        // Creating a Runnable using a lambda expression
+        Runnable task = () -> {
+            for (int i = 0; i < 1000; i++) {
+                counter.increment();
+            }
+        };
+
+        // Starting two threads to increment the count
+        Thread t1 = new Thread(task);
+        Thread t2 = new Thread(task);
+
+        t1.start();
+        t2.start();
+
+        // Wait for threads to finish
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Print the final count value
+        System.out.println("Final count: " + counter.getCount());
+    }
+}
+
+Example of try lock
+----------------------
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class TryLockExample {
+    private final Lock lock = new ReentrantLock();
+
+    public void performTask() {
+        boolean isLockAcquired = lock.tryLock();
+
+        if (isLockAcquired) {
+            try {
+                // Perform your task here
+                System.out.println("Lock acquired, performing the task...");
+            } finally {
+                lock.unlock(); // Always ensure the lock is released
+            }
+        } else {
+            // Perform alternative actions if the lock was not acquired
+            System.out.println("Could not acquire lock, doing something else...");
+        }
+    }
+
+    public static void main(String[] args) {
+        TryLockExample example = new TryLockExample();
+        example.performTask();
+    }
+}
+
+Comparasion b/w the three and concluding
+------------------------------------------
+
+Locks offer more control and flexibility, semaphores are suitable for both mutual exclusion 
+and signaling, and the synchronized keyword is the simplest way to prevent concurrent access but with less flexibility and control.

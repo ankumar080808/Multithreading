@@ -1,0 +1,261 @@
+Synchronization in Java is a crucial concept used to control the access of multiple threads to shared resources. 
+It’s essential to prevent thread interference and ensure consistency when threads are accessing common data. 
+
+Here’s a brief explanation of synchronization and its rules:
+
+Synchronization
+Synchronization is implemented in Java using monitors or locks.
+Only one thread can own a monitor at a given time, ensuring that only one thread can access the resource at a time.
+
+Rules of Synchronization
+Synchronized Methods: If a method is declared with the synchronized keyword, it means that the method can only be executed by one thread at a time for an instance of a class.
+
+Certainly! Below is a complete example of a Java class using a synchronized method to ensure thread safety when incrementing a counter:
+
+Synchronized Method
+---------------------
+class Counter {
+    private int count = 0; // shared resource
+
+    // Synchronized method to increment count
+    public synchronized void increment() {
+        count++; // critical section
+    }
+
+    // Method to get the current count value
+    public int getCount() {
+        return count;
+    }
+}
+
+class CounterThread extends Thread {
+    private Counter counter;
+
+    public CounterThread(Counter counter) {
+        this.counter = counter;
+    }
+
+    public void run() {
+        for(int i = 0; i < 5; i++) {
+            counter.increment();
+        }
+    }
+}
+
+public class SynchronizationDemo {
+    public static void main(String[] args) {
+        Counter counter = new Counter();
+
+        // Creating two threads that share the same Counter object
+        CounterThread t1 = new CounterThread(counter);
+        CounterThread t2 = new CounterThread(counter);
+
+        t1.start();
+        t2.start();
+
+        // Wait for threads to finish
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            System.out.println("Threads interrupted");
+        }
+
+        System.out.println("Final count: " + counter.getCount());
+        // The final count should be 10 if synchronization works correctly
+    }
+}
+
+The increment method is synchronized, which means it will lock the Counter object for any thread executing it, preventing other threads from entering the method until the lock is released.
+The CounterThread class extends Thread and uses the Counter object to increment the count.
+In the main method, two threads are created that share the same Counter instance. Both threads are started, and the main method waits for both to finish using the join method.
+After both threads have finished, the final count is printed out. If synchronization is working correctly, the final count should be 10 because each thread increments the count 5 times.
+This example demonstrates how synchronization can prevent thread interference and ensure that the shared resource (count) is updated correctly in a multi-threaded environment. Remember, without synchronization, the result could be unpredictable due to concurrent access to the shared resource.
+
+
+Now using Lambda
+-----------------
+
+class Counter {
+    private int count = 0; // shared resource
+
+    // Synchronized method to increment count
+    public synchronized void increment() {
+        count++; // critical section
+    }
+
+    // Method to get the current count value
+    public int getCount() {
+        return count;
+    }
+}
+
+public class SynchronizationDemo {
+    public static void main(String[] args) {
+        Counter counter = new Counter();
+
+        // Creating two threads using lambda expressions
+        Thread t1 = new Thread(() -> {
+            for(int i = 0; i < 5; i++) {
+                counter.increment();
+            }
+        });
+
+        Thread t2 = new Thread(() -> {
+            for(int i = 0; i < 5; i++) {
+                counter.increment();
+            }
+        });
+
+        t1.start();
+        t2.start();
+
+        // Wait for threads to finish
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            System.out.println("Threads interrupted");
+        }
+
+        System.out.println("Final count: " + counter.getCount());
+        // The final count should be 10 if synchronization works correctly
+    }
+}
+
+
+Using Synchronized block
+--------------------------
+
+class Counter {
+    private int count = 0;
+
+    public void increment() {
+        // Synchronized block to ensure only one thread can access this block at a time
+        synchronized(this) {
+            count++;
+            System.out.println("Current count is: " + count);
+        }
+    }
+
+    public int getCount() {
+        return count;
+    }
+}
+
+class MyThread extends Thread {
+    private Counter counter;
+
+    public MyThread(Counter counter) {
+        this.counter = counter;
+    }
+
+    public void run() {
+        counter.increment();
+    }
+}
+
+public class SynchronizedBlockExample {
+    public static void main(String[] args) {
+        Counter counter = new Counter();
+
+        // Creating two threads that share the same Counter object
+        MyThread t1 = new MyThread(counter);
+        MyThread t2 = new MyThread(counter);
+
+        t1.start();
+        t2.start();
+    }
+}
+
+In this example, the increment method contains a synchronized block. When a thread enters this block, it obtains a lock on the Counter object (this), and no other thread can enter any synchronized block on the same object until the lock is released. This prevents concurrent modifications to the count variable, ensuring thread safety.
+
+Using lambda
+-------------
+class Counter {
+    private int count = 0;
+
+    public void increment() {
+        // Synchronized block within the lambda expression
+            synchronized(this) {
+                count++;
+                System.out.println("Current count is: " + count);
+            }
+        
+    }
+
+    public int getCount() {
+        return count;
+    }
+}
+
+public class SynchronizedLambdaExample {
+    public static void main(String[] args) {
+        Counter counter = new Counter();
+
+        // Creating two threads that share the same Counter object
+        Thread t1 = new Thread(() -> counter.increment());
+        Thread t2 = new Thread(() -> counter.increment());
+
+        t1.start();
+        t2.start();
+    }
+}
+
+
+Static Synchronization
+-------------------------
+Static synchronization in Java is a mechanism that controls the access of multiple threads to static methods.
+When a method is declared as static synchronized, the lock is on the class Class object,
+not on an instance of the class. This means that all threads see the same lock and thus, 
+only one thread can execute a static synchronized method of a class at any given time,
+regardless of the number of instances of the class.
+
+
+class Table {
+    // Static synchronized method
+    public static synchronized void printTable(int n) {
+        for (int i = 1; i <= 10; i++) {
+            System.out.println(n * i);
+            try {
+                Thread.sleep(400);
+            } catch (InterruptedException e) {
+                System.out.println(e);
+            }
+        }
+    }
+}
+
+public class TestStaticSynchronizationWithLambda {
+    public static void main(String[] args) {
+        // Creating threads using lambda expressions
+        Thread t1 = new Thread(() -> Table.printTable(1));
+        Thread t2 = new Thread(() -> Table.printTable(10));
+        Thread t3 = new Thread(() -> Table.printTable(100));
+        Thread t4 = new Thread(() -> Table.printTable(1000));
+
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
+    }
+}
+
+In this code, the printTable method is a static synchronized method.
+The threads are created using lambda expressions that call the static method.
+Since the method is static synchronized, the class-level lock of Table.class is acquired when a thread executes the method,
+ensuring that only one thread can execute the method at a time across all instances.
+
+
+Difference between Synchronized method,Synchronized block and Static Synchronization.
+----------------------------------------------------------------------------------------
+In Java, synchronization is crucial when working with multiple threads to ensure that only one thread can access a resource at a time. Here’s a brief overview of the differences between synchronized methods, synchronized blocks, and static synchronization:
+
+Synchronized Method: When a method is declared with the synchronized keyword, it locks the monitor for the object (or class if it’s a static method). This means that only one thread can execute a synchronized method at a time, and other threads will be blocked until the method is released by the current thread1.
+
+Synchronized Block: Unlike synchronized methods that lock the entire method, synchronized blocks only lock the portion of the code within the block. This allows for more granular control over the synchronization and can lead to better performance if properly used. You can specify any object as the lock for a synchronized block2.
+
+Static Synchronization: When a static method is synchronized, it locks the monitor for the class object itself, not any individual instance. This means that all instances of the class share the same lock for static synchronized methods, which controls the synchronization on a per-class basis rather than per-instance..
+
+Note: Synchronization increases the waiting time of the thread and lowers the performance.
+

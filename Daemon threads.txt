@@ -1,0 +1,51 @@
+Daemon threads in Java are low-priority threads that run in the background to perform tasks such as garbage collection, 
+and they provide services to user threads. 
+
+
+The main characteristics of daemon threads are:
+
+They are meant to serve user threads and are only needed while user threads are running.
+
+They do not prevent the JVM from exiting once all user threads have finished their execution.
+
+When all user threads finish, the JVM terminates the daemon threads and shuts down.
+
+JVM does not wait for daemon threads to finish its execution once all user threads finish its 
+execution jvm terminates the program.
+
+To create a daemon thread in Java, you use the setDaemon(true) method on a Thread object before it is started.
+
+public class DaemonThreadExample extends Thread {
+    public DaemonThreadExample(String name){
+        super(name);
+    }
+
+    public void run() {
+        if(Thread.currentThread().isDaemon()) {
+            System.out.println(getName() + " is a Daemon thread");
+        } else {
+            System.out.println(getName() + " is a User thread");
+        }
+    }
+
+    public static void main(String[] args) {
+        DaemonThreadExample t1 = new DaemonThreadExample("t1");
+        DaemonThreadExample t2 = new DaemonThreadExample("t2");
+        t1.setDaemon(true); // Setting t1 as a daemon thread
+        t1.start(); // Starting threads
+        t2.start();
+    }
+}
+
+
+In this code:
+
+t1 is set as a daemon thread using t1.setDaemon(true).
+
+t2 is a user thread (non-daemon) by default.
+
+When you run this program, it will output that t1 is a daemon thread and t2 is a user thread1.
+
+Remember, the setDaemon(true) method must be called before starting the thread; otherwise,
+it will throw an IllegalThreadStateException. Daemon threads are typically used for background supporting tasks 
+and are not used for critical work because they may not finish executing before the JVM exits

@@ -1,0 +1,103 @@
+Certainly! In Java, wait(), notify(), and notifyAll() are methods that facilitate communication between threads to ensure synchronization.
+They are used to avoid thread interference and memory consistency errors when multiple threads are trying to access a shared resource.
+
+The wait() Method
+
+The wait() method is used to make the current thread release the lock and wait until another thread invokes notify() or notifyAll() on the same object. 
+To call wait(), the current thread must own the object’s monitor, which it can obtain by entering a synchronized block or method.
+
+
+The notify() Method
+
+The notify() method is used to wake up a single thread that is waiting on the object’s monitor. If multiple threads are waiting, one is arbitrarily chosen. The notified thread will not be able to proceed until the current thread releases the lock.
+
+The notifyAll() Method
+
+The notifyAll() method wakes up all the threads that are waiting on the object’s monitor. The threads will compete for the lock when it’s released.
+
+
+Code
+----
+
+class Buffer {
+    private LinkedList<Integer> list = new LinkedList<>();
+    private int capacity = 2;
+
+    // Method for producers to produce items
+    public synchronized void produce() throws InterruptedException {
+        int value = 0;
+        while (true) {
+            // Wait if the buffer is full
+            while (list.size() == capacity) {
+                wait();
+            }
+            // Produce a value and add it to the buffer
+            System.out.println("Produced: " + value);
+            list.add(value++);
+            // Notify all waiting threads that an item has been produced
+            notifyAll();
+            Thread.sleep(1000);
+        }
+    }
+
+    // Method for consumers to consume items
+    public synchronized void consume() throws InterruptedException {
+        while (true) {
+            // Wait if the buffer is empty
+            while (list.size() == 0) {
+                wait();
+            }
+            // Consume a value from the buffer
+            int value = list.removeFirst();
+            System.out.println("Consumed: " + value);
+            // Notify all waiting threads that an item has been consumed
+            notifyAll();
+            Thread.sleep(1000);
+        }
+    }
+}
+
+public class ProducerConsumerTest {
+    public static void main(String[] args) {
+        Buffer buffer = new Buffer();
+
+        // Create producer thread
+        Thread producerThread = new Thread(() -> {
+            try {
+                buffer.produce();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        // Create consumer thread
+        Thread consumerThread = new Thread(() -> {
+            try {
+                buffer.consume();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        // Start both threads
+        producerThread.start();
+        consumerThread.start();
+    }
+}
+
+
+In this code, both produce() and consume() methods are synchronized, which means they lock the Buffer object while a thread is executing them. When the buffer is full, the producer thread calls wait() to release the lock and wait. Similarly, when the buffer is empty, the consumer thread waits. Once an item is produced or consumed, notifyAll() is called to wake up all waiting threads.
+
+Using notifyAll() instead of notify() can be more efficient in some scenarios where multiple threads need to be informed about the change in condition, but it can also lead to more competition for the lock and potentially less efficient throughput if many threads are woken up but only one can proceed.
+
+Remember to handle the InterruptedException that can be thrown when calling wait(), notify(), and notifyAll(). This exception occurs when a thread is interrupted while it’s waiting or sleeping. In the example, the exception is caught and the stack trace is printed, but in a real-world application, you might want to handle it differently.
+
+Output of code will look like this
+-----------------------------------
+
+Produced: 0
+Produced: 1
+Consumed: 0
+Consumed: 1
+Produced: 2
+...

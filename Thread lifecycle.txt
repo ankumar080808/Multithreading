@@ -1,0 +1,18 @@
+Here’s a brief overview of the thread lifecycle:
+-------------------------------------------------
+New State: When a thread is created, it’s in the ‘New’ state. It has not yet started.
+
+Runnable State: Once the thread is started using the start() method, it moves to the ‘Runnable’ state. Here, it might actually be running or ready to run, waiting for CPU allocation.
+
+Blocked State: A thread can enter the ‘Blocked’ state when it’s waiting for a monitor lock to enter a synchronized block/method.
+
+Waiting State: A thread enters the ‘Waiting’ state when it waits for another thread to perform a particular action, without any time limit.
+
+Timed Waiting State: Similar to the ‘Waiting’ state, but with a specified waiting time. The thread is in this state when it calls methods like sleep() or wait() with a time-out parameter.
+
+Terminated State: A thread enters the ‘Terminated’ state when it completes its execution or is forcibly terminated due to an exception.
+
+New -> Runnable -> Blocked/Waiting/Timed Waiting -> Terminated
+
+
+Each state is crucial for proper thread management and utilization of system resources. Understanding these states helps in writing efficient multi-threaded applications
